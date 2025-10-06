@@ -1,5 +1,5 @@
 // ============================================================================
-//         PROJETO WAR ESTRUTURADO - DESAFIO DE CÓDIGO
+//         PROJETO WAR ESTRUTURADO - DESAFIO DE CÓDIGO (NÍVEL AVENTUREIRO)
 // ============================================================================
 //
 // OBJETIVOS (NÍVEL AVENTUREIRO):
@@ -53,7 +53,7 @@ int main() {
         getchar();
 
         if (totalTerritorios < 2) {
-           printf("Deve ser informado pelo menos 2 territórios para iniciar o game!\n");
+            printf("Deve ser informado pelo menos 2 territórios para iniciar o game!\n");
         }
 
     } while (totalTerritorios < 2);
@@ -163,8 +163,16 @@ int faseDeAtaque(Territorio* mapa, int tamanho) {
         return 0;
     }
 
+    // impede ataque a território da mesma cor (aliado)
+    if (strcmp(mapa[idAtacante - 1].cor, mapa[idDefensor - 1].cor) == 0) {
+        printf("\nNão é possível atacar um território aliado (%s)!\n", mapa[idAtacante - 1].cor);
+        return 0;
+    }
+
+    // Simulação da batalha
     simularAtaque(&mapa[idAtacante - 1], &mapa[idDefensor - 1]);
 
+    // Verifica se o atacante venceu o jogo
     return verificarVitoria(mapa, tamanho, &mapa[idAtacante - 1]);
 }
 
@@ -195,12 +203,20 @@ void simularAtaque(Territorio* atacante, Territorio* defensor) {
     if (dadoAtaque > dadoDefesa) {
         printf("\nO atacante venceu a rodada!\n");
         defensor->tropas -= 1;
+
+        // quando o defensor perde todas as tropas
         if (defensor->tropas <= 0) {
             printf("O território %s foi conquistado pelo exército %s!\n",
                    defensor->nome, atacante->cor);
+
             strcpy(defensor->cor, atacante->cor);
-            defensor->tropas = 1;
-            atacante->tropas -= 1;
+
+            // transfere metade das tropas para o novo território
+            int tropasTransferidas = atacante->tropas / 2;
+            if (tropasTransferidas < 1) tropasTransferidas = 1;
+
+            defensor->tropas = tropasTransferidas;
+            atacante->tropas -= tropasTransferidas;
         }
     } else {
         printf("\nO defensor resistiu ao ataque!\n");
