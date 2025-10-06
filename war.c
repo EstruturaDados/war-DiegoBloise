@@ -32,8 +32,9 @@ Territorio* alocarMapa(int tamanho);
 void liberarMemoria(Territorio* mapa);
 void cadastrarTerritorios(Territorio* mapa, int tamanho);
 void exibirTerritorios(const Territorio* mapa, int tamanho);
-void faseDeAtaque(Territorio* mapa, int tamanho);
+int faseDeAtaque(Territorio* mapa, int tamanho);
 void simularAtaque(Territorio* atacante, Territorio* defensor);
+int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante);
 
 // --- Função Principal ---
 int main() {
@@ -69,6 +70,7 @@ int main() {
 
     // 3. Loop de batalhas
     char continuar;
+    int gameOver = 0;
     do {
         printf("\n==============================================\n");
         printf("                ESTADO DO MAPA                \n");
@@ -80,10 +82,10 @@ int main() {
         getchar();
 
         if (continuar == 's' || continuar == 'S') {
-            faseDeAtaque(mapa, totalTerritorios);
+            gameOver = faseDeAtaque(mapa, totalTerritorios);
         }
 
-    } while (continuar == 's' || continuar == 'S');
+    } while (gameOver == 0);
 
     // 4. Liberação da memória
     liberarMemoria(mapa);
@@ -139,7 +141,7 @@ void exibirTerritorios(const Territorio* mapa, int tamanho) {
 }
 
 // Controla a escolha de ataque e defesa
-void faseDeAtaque(Territorio* mapa, int tamanho) {
+int faseDeAtaque(Territorio* mapa, int tamanho) {
     int idAtacante, idDefensor;
 
     printf("\nEscolha o território ATACANTE (1-%d): ", tamanho);
@@ -153,15 +155,17 @@ void faseDeAtaque(Territorio* mapa, int tamanho) {
     // validação básica
     if (idAtacante < 1 || idAtacante > tamanho || idDefensor < 1 || idDefensor > tamanho) {
         printf("IDs inválidos! Escolha entre 1 e %d.\n", tamanho);
-        return;
+        return 0;
     }
 
     if (idAtacante == idDefensor) {
         printf("Um território não pode atacar a si mesmo!\n");
-        return;
+        return 0;
     }
 
     simularAtaque(&mapa[idAtacante - 1], &mapa[idDefensor - 1]);
+
+    return verificarVitoria(mapa, tamanho, &mapa[idAtacante - 1]);
 }
 
 // Simula uma batalha entre dois territórios
@@ -206,4 +210,25 @@ void simularAtaque(Territorio* atacante, Territorio* defensor) {
     printf("\n--- Resultado após a batalha ---\n");
     printf("%s (%s) - Tropas: %d\n", atacante->nome, atacante->cor, atacante->tropas);
     printf("%s (%s) - Tropas: %d\n", defensor->nome, defensor->cor, defensor->tropas);
+}
+
+// Verifica se o atacante dominou todos os territórios
+int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante) {
+    int territoriosDominados = 0;
+
+    for (int i = 0; i < tamanho; i++) {
+        if (strcmp(mapa[i].cor, atacante->cor) == 0) {
+            territoriosDominados++;
+        }
+    }
+
+    if (territoriosDominados == tamanho) {
+        printf("\n==============================================\n");
+        printf("          FIM DE JOGO - VITÓRIA TOTAL!         \n");
+        printf("==============================================\n");
+        printf("O exército %s conquistou todos os territórios!\n", atacante->cor);
+        return 1; // game over
+    }
+
+    return 0; // jogo continua
 }
