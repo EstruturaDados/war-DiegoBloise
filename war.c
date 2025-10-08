@@ -39,6 +39,8 @@ void atacar(Territorio* atacante, Territorio* defensor);
 int verificarVitoriaMissao(const Territorio* mapa, int tamanho, int idMissao, const char* corJogador);
 void liberarMemoria(Territorio* mapa);
 void limparBufferEntrada();
+void limparTela();
+void pausar();
 int sortearMissao();
 
 // --- Função Principal ---
@@ -46,6 +48,7 @@ int main() {
     setlocale(LC_ALL, "Portuguese");
     srand(time(NULL));
 
+    limparTela();
     printf("==============================================\n");
     printf("           WAR ESTRUTURADO - NÍVEL MESTRE     \n");
     printf("==============================================\n\n");
@@ -113,6 +116,7 @@ void liberarMemoria(Territorio* mapa) {
 // ============================================================================
 
 void cadastrarTerritorios(Territorio* mapa, int tamanho) {
+    limparTela();
     for (int i = 0; i < tamanho; i++) {
         printf("\n--- Cadastro do Território %d ---\n", i + 1);
 
@@ -130,6 +134,9 @@ void cadastrarTerritorios(Territorio* mapa, int tamanho) {
 
         printf("Território '%s' (%s) com %d tropas cadastrado!\n",
                mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+
+        pausar();
+        limparTela();
     }
 }
 
@@ -183,7 +190,8 @@ void gameLoop(Territorio* mapa, int tamanho, const char* corJogador, int idMissa
     int venceu = 0;
 
     do {
-        printf("\n==============================================\n");
+        limparTela();
+        printf("==============================================\n");
         printf("                 ESTADO DO MAPA               \n");
         printf("==============================================\n");
         exibirTerritorios(mapa, tamanho);
@@ -199,6 +207,7 @@ void gameLoop(Territorio* mapa, int tamanho, const char* corJogador, int idMissa
         switch (opcao) {
             case 1:
                 faseDeAtaque(mapa, tamanho);
+                pausar();
                 break;
             case 2:
                 venceu = verificarVitoriaMissao(mapa, tamanho, idMissao, corJogador);
@@ -206,12 +215,14 @@ void gameLoop(Territorio* mapa, int tamanho, const char* corJogador, int idMissa
                     printf("\n🎉 Missão cumprida! Você venceu o jogo!\n");
                 else
                     printf("\n❌ Missão ainda não concluída.\n");
+                pausar();
                 break;
             case 0:
                 printf("\nSaindo do jogo...\n");
                 break;
             default:
                 printf("Opção inválida!\n");
+                pausar();
         }
 
     } while (opcao != 0 && !venceu);
@@ -252,8 +263,7 @@ int faseDeAtaque(Territorio* mapa, int tamanho) {
 }
 
 void atacar(Territorio* atacante, Territorio* defensor) {
-    printf("\n==============================================\n");
-    printf("                INÍCIO DA BATALHA             \n");
+    limparTela();
     printf("==============================================\n");
     printf("Atacante: %s (%s) - Tropas: %d\n", atacante->nome, atacante->cor, atacante->tropas);
     printf("Defensor: %s (%s) - Tropas: %d\n", defensor->nome, defensor->cor, defensor->tropas);
@@ -267,7 +277,7 @@ void atacar(Territorio* atacante, Territorio* defensor) {
     int dadoDefesa = (rand() % 6) + 1;
 
     printf("\n  Dado do Ataque: %d\n", dadoAtaque);
-    printf("   Dado da Defesa: %d\n", dadoDefesa);
+    printf("  Dado da Defesa: %d\n", dadoDefesa);
 
     if (dadoAtaque > dadoDefesa) {
         printf("\nO atacante venceu a rodada!\n");
@@ -343,4 +353,17 @@ int verificarVitoriaMissao(const Territorio* mapa, int tamanho, int idMissao, co
 void limparBufferEntrada() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void limparTela() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void pausar() {
+    printf("\nPressione ENTER para continuar...");
+    limparBufferEntrada();
 }
