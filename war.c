@@ -33,30 +33,19 @@ void liberarMemoria(Territorio* mapa);
 void cadastrarTerritorios(Territorio* mapa, int tamanho);
 void exibirTerritorios(const Territorio* mapa, int tamanho);
 int faseDeAtaque(Territorio* mapa, int tamanho);
-void simularAtaque(Territorio* atacante, Territorio* defensor);
+void atacar(Territorio* atacante, Territorio* defensor);
 int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante);
+void gameSetup(int* totalTerritorios);
 
 // --- Função Principal ---
 int main() {
     setlocale(LC_ALL, "Portuguese");
     srand(time(NULL)); // inicializa gerador de números aleatórios
 
-    printf("==============================================\n");
-    printf("     PREPARAÇÃO DO GAME - WAR ESTRUTURADO     \n");
-    printf("==============================================\n\n");
-
     int totalTerritorios;
 
-    do {
-        printf("Número de territórios: ");
-        scanf("%d", &totalTerritorios);
-        getchar();
-
-        if (totalTerritorios < 2) {
-            printf("Deve ser informado pelo menos 2 territórios para iniciar o game!\n");
-        }
-
-    } while (totalTerritorios < 2);
+    // Configuração inicial do game
+    gameSetup(&totalTerritorios);
 
     // 1. Alocação dinâmica do mapa de territórios
     Territorio* mapa = alocarMapa(totalTerritorios);
@@ -174,14 +163,14 @@ int faseDeAtaque(Territorio* mapa, int tamanho) {
     }
 
     // Simulação da batalha
-    simularAtaque(&mapa[idAtacante - 1], &mapa[idDefensor - 1]);
+    atacar(&mapa[idAtacante - 1], &mapa[idDefensor - 1]);
 
     // Verifica se o atacante venceu o jogo
     return verificarVitoria(mapa, tamanho, &mapa[idAtacante - 1]);
 }
 
 // Simula uma batalha entre dois territórios
-void simularAtaque(Territorio* atacante, Territorio* defensor) {
+void atacar(Territorio* atacante, Territorio* defensor) {
     printf("\n==============================================\n");
     printf("             INÍCIO DA BATALHA             \n");
     printf("==============================================\n");
@@ -251,4 +240,22 @@ int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante) {
     }
 
     return 0; // jogo continua
+}
+
+// Configuração do total de territorios do game
+void gameSetup(int* totalTerritorios) {
+    printf("==============================================\n");
+    printf("     PREPARAÇÃO DO GAME - WAR ESTRUTURADO     \n");
+    printf("==============================================\n\n");
+
+    do {
+        printf("Número de territórios: ");
+        scanf("%d", totalTerritorios);
+        getchar();
+
+        if (*totalTerritorios < 5) {
+            printf("Deve ser informado pelo menos 5 territórios para iniciar o game!\n");
+        }
+
+    } while (*totalTerritorios < 5);
 }
