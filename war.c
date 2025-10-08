@@ -10,15 +10,18 @@
 //
 // ============================================================================
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 #include <time.h>
 
+
 // --- Constantes Globais ---
 #define TAM_NOME 30
 #define TAM_COR 10
+
 
 // --- Estrutura de Dados ---
 typedef struct {
@@ -27,77 +30,73 @@ typedef struct {
     int tropas;
 } Territorio;
 
+
 // --- Protótipos das Funções ---
+void gameSetup(int* totalTerritorios);
 Territorio* alocarMapa(int tamanho);
-void liberarMemoria(Territorio* mapa);
 void cadastrarTerritorios(Territorio* mapa, int tamanho);
+void gameLoop(const Territorio* mapa, int tamanho);
 void exibirTerritorios(const Territorio* mapa, int tamanho);
 int faseDeAtaque(Territorio* mapa, int tamanho);
 void atacar(Territorio* atacante, Territorio* defensor);
 int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante);
-void gameSetup(int* totalTerritorios);
+void liberarMemoria(Territorio* mapa);
+
 
 // --- Função Principal ---
 int main() {
     setlocale(LC_ALL, "Portuguese");
     srand(time(NULL)); // inicializa gerador de números aleatórios
 
-    int totalTerritorios;
-
     // Configuração inicial do game
+    int totalTerritorios;
     gameSetup(&totalTerritorios);
 
-    // 1. Alocação dinâmica do mapa de territórios
+    // Alocação dinâmica do mapa de territórios
     Territorio* mapa = alocarMapa(totalTerritorios);
     if (mapa == NULL) {
         printf("Erro: falha ao alocar memória para os territórios.\n");
         return 1;
     }
 
-    // 2. Cadastro dos territórios
+    // Cadastro dos territórios
     cadastrarTerritorios(mapa, totalTerritorios);
 
-    // 3. Loop de batalhas
-    char continuar;
-    int gameOver = 0;
-    do {
-        printf("\n==============================================\n");
-        printf("                ESTADO DO MAPA                \n");
-        printf("==============================================\n");
-        exibirTerritorios(mapa, totalTerritorios);
+    // Loop de batalhas
+    gameLoop(mapa, totalTerritorios);
 
-        printf("\nDeseja realizar um ataque? (s/n): ");
-        scanf(" %c", &continuar);
-        getchar();
-
-        if (continuar == 's' || continuar == 'S') {
-            gameOver = faseDeAtaque(mapa, totalTerritorios);
-        } else if (continuar == 'n' || continuar == 'N') {
-            break;
-        } else {
-            printf("\n\nOpção inválida! Tente novamente...\n\n");
-        }
-
-    } while (gameOver == 0);
-
-    // 4. Liberação da memória
+    // Liberação da memória
     liberarMemoria(mapa);
 
     printf("\nJogo encerrado. Até a próxima batalha!\n");
     return 0;
 }
 
+
 // --- Implementação das Funções ---
+
+// Configuração do total de territorios do game
+void gameSetup(int* totalTerritorios) {
+    printf("==============================================\n");
+    printf("     PREPARAÇÃO DO GAME - WAR ESTRUTURADO     \n");
+    printf("==============================================\n\n");
+
+    do {
+        printf("Número de territórios: ");
+        scanf("%d", totalTerritorios);
+        getchar();
+
+        if (*totalTerritorios < 5) {
+            printf("Deve ser informado pelo menos 5 territórios para iniciar o game!\n");
+        }
+
+    } while (*totalTerritorios < 5);
+}
 
 // Aloca dinamicamente o vetor de territórios com calloc
 Territorio* alocarMapa(int tamanho) {
     Territorio* mapa = (Territorio*) calloc(tamanho, sizeof(Territorio));
     return mapa;
-}
-
-// Libera a memória alocada
-void liberarMemoria(Territorio* mapa) {
-    free(mapa);
 }
 
 // Cadastra os territórios dinamicamente
@@ -120,6 +119,30 @@ void cadastrarTerritorios(Territorio* mapa, int tamanho) {
         printf("Território '%s' (%s) com %d tropas cadastrado!\n",
                mapa[i].nome, mapa[i].cor, mapa[i].tropas);
     }
+}
+
+void gameLoop(const Territorio* mapa, int tamanho) {
+    char continuar;
+    int gameOver = 0;
+    do {
+        printf("\n==============================================\n");
+        printf("                ESTADO DO MAPA                \n");
+        printf("==============================================\n");
+        exibirTerritorios(mapa, tamanho);
+
+        printf("\nDeseja realizar um ataque? (s/n): ");
+        scanf(" %c", &continuar);
+        getchar();
+
+        if (continuar == 's' || continuar == 'S') {
+            gameOver = faseDeAtaque(mapa, tamanho);
+        } else if (continuar == 'n' || continuar == 'N') {
+            break;
+        } else {
+            printf("\n\nOpção inválida! Tente novamente...\n\n");
+        }
+
+    } while (gameOver == 0);
 }
 
 // Exibe os territórios atuais
@@ -242,20 +265,7 @@ int verificarVitoria(Territorio* mapa, int tamanho, Territorio* atacante) {
     return 0; // jogo continua
 }
 
-// Configuração do total de territorios do game
-void gameSetup(int* totalTerritorios) {
-    printf("==============================================\n");
-    printf("     PREPARAÇÃO DO GAME - WAR ESTRUTURADO     \n");
-    printf("==============================================\n\n");
-
-    do {
-        printf("Número de territórios: ");
-        scanf("%d", totalTerritorios);
-        getchar();
-
-        if (*totalTerritorios < 5) {
-            printf("Deve ser informado pelo menos 5 territórios para iniciar o game!\n");
-        }
-
-    } while (*totalTerritorios < 5);
+// Libera a memória alocada
+void liberarMemoria(Territorio* mapa) {
+    free(mapa);
 }
