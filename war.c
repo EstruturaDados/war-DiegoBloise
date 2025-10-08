@@ -77,12 +77,16 @@ int main() {
         printf("==============================================\n");
         exibirTerritorios(mapa, totalTerritorios);
 
-        printf("\nDeseja realizar um ataque? (S/n): ");
+        printf("\nDeseja realizar um ataque? (s/n): ");
         scanf(" %c", &continuar);
         getchar();
 
         if (continuar == 's' || continuar == 'S') {
             gameOver = faseDeAtaque(mapa, totalTerritorios);
+        } else if (continuar == 'n' || continuar == 'N') {
+            break;
+        } else {
+            printf("\n\nOpção inválida! Tente novamente...\n\n");
         }
 
     } while (gameOver == 0);
